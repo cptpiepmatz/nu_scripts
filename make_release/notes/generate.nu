@@ -35,7 +35,7 @@ export def get-release-notes []: record -> record {
     let hall_of_fame = $SECTIONS | where label == "notes:mention" | only
 
     # Extract the notes section
-    mut notes = if "## Release notes summary" in $pr.body {
+    mut notes = if "## Release notes summary" in $pr.body or "## User-facing changes" in $pr.body {
       $pr.body | extract-notes
     } else if $has_ready_label {
       # If no release notes summary exists but ready label is set, treat as empty
@@ -104,7 +104,7 @@ export def get-release-notes []: record -> record {
 export def extract-notes []: string -> string {
     lines
     # skip until release notes heading
-    | skip until { $in starts-with "## Release notes summary" }
+    | skip until { $in starts-with "## Release notes summary" or $in starts-with "## User-facing changes" }
     # this should already have been checked
     | if ($in | is-empty) { assert false } else {}
     | skip 1 # remove header
@@ -122,7 +122,7 @@ export def generate-notes [version: string]: table -> string {
     let prs = $in
 
     const template_path = path self "template.md"
-    let template = open $template_path
+    let template = open $template_path --raw
     let arguments = {
         # chop off the `v` in the version
         version: ($version | str substring 1..),
