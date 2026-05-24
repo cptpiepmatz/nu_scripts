@@ -4,10 +4,11 @@ use std log
 # bump the minor or patch version of the Nushell project
 def main [
     --patch # update the minor version instead of the minor
+    --dev # mark new version as dev version
 ]: nothing -> nothing {
     let version = open Cargo.toml
         | get package.version
-        | parse "{major}.{minor}.{patch}"
+        | parse --regex '^(?<major>\d+).(?<minor>\d+).(?<patch>\d+)(?:-(?<pre>[^+]+))?'
         | into int major minor patch
         | into record
 
@@ -17,8 +18,14 @@ def main [
         $version | update minor { $in + 1 } | update patch { 0 }
     }
 
-    let version = $version | transpose | get column1 | str join "."
-    let new_version = $new_version | transpose | get column1 | str join "."
+    let new_version = if $dev {
+        $new_version | update pre { "dev" }
+    } else {
+        $new_version | update pre { null }
+    }
+
+    let version = make-version $version
+    let new_version = make-version $new_version
 
     log info $"bumping all packages and Nushell files in (open Cargo.toml | get package.name) from ($version) to ($new_version)"
 
@@ -67,4 +74,11 @@ def main [
         | save --force "Cargo.toml"
 
     null
+}
+
+def make-version [
+    parts: record<major: int, minor: int, patch: int, pre: oneof<nothing, string>>
+] {
+    let suffix: string = if ($parts.pre | is-not-empty) {$"-($parts.pre)"} else {""}
+    $"($parts.major).($parts.minor).($parts.patch)($suffix)"
 }
