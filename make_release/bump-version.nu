@@ -7,7 +7,7 @@ def main [
     --dev # mark new version as dev version
 ]: nothing -> nothing {
     let version = open Cargo.toml
-        | get package.version
+        | get workspace.package.version
         | parse --regex '^(?<major>\d+).(?<minor>\d+).(?<patch>\d+)(?:-(?<pre>[^+]+))?'
         | into int major minor patch
         | into record
