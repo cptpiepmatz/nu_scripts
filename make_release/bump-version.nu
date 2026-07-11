@@ -1,5 +1,5 @@
 #!/usr/bin/env nu
-use std log
+use std/log
 
 # bump the minor or patch version of the Nushell project
 def main [
