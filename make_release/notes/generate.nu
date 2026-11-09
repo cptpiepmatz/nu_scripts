@@ -3,6 +3,7 @@ const SECTIONS = [
     [label, h2, h3];
     ["notes:breaking-changes", "Breaking changes", "Other breaking changes"]
     ["notes:additions", "Additions", "Other additions"]
+    ["notes:perf", "Performance", "Other performance improvements"]
     ["notes:deprecations", "Deprecations", "Other deprecations"]
     ["notes:removals", "Removals", "Other removals"]
     ["notes:other", "Other changes", "Additional changes"]
